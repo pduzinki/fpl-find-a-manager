@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 
 	"fpl-find-a-manager/pkg/storage/sqlite"
 )
@@ -21,7 +23,10 @@ func main() {
 		fmt.Println("Please type the name of the manager you're looking for, or [ctrl+c] to exit:")
 
 		var nameInput string
-		fmt.Scanln(&nameInput)
+		scanner := bufio.NewScanner(os.Stdin)
+		if scanner.Scan() {
+			nameInput = scanner.Text()
+		}
 
 		// TODO remove later
 		fmt.Println("hello " + nameInput)
