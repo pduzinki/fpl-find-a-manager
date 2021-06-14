@@ -31,6 +31,7 @@ func main() {
 		// TODO remove later
 		fmt.Println("hello " + nameInput)
 		fmt.Println("No managers found!")
+		// TODO press enter to look for someone else, or esc to exit
 
 		fmt.Println("--------------------------------")
 	}
