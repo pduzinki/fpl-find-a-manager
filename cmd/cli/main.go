@@ -6,7 +6,9 @@ import (
 	"log"
 	"os"
 
+	"fpl-find-a-manager/pkg/adding"
 	"fpl-find-a-manager/pkg/storage/sqlite"
+	"fpl-find-a-manager/pkg/wrapper"
 )
 
 func main() {
@@ -17,7 +19,20 @@ func main() {
 		log.Fatalln("Failed to create storage!")
 	}
 
-	_ = s
+	adder := adding.NewService(s)
+
+	wrapper := wrapper.NewWrapper()
+	wm, err := wrapper.GetManager(43741)
+	if err != nil {
+		panic(err)
+	}
+
+	am := adding.Manager{
+		FplID:    wm.ID,
+		FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
+	}
+
+	adder.AddManager(am)
 
 	for {
 		fmt.Println("Please type the name of the manager you're looking for, or [ctrl+c] to exit:")

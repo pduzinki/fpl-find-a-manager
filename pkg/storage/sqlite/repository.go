@@ -1,6 +1,8 @@
 package sqlite
 
 import (
+	"fpl-find-a-manager/pkg/adding"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,4 +27,13 @@ func NewStorage() (*Storage, error) {
 	return &Storage{
 		db: db,
 	}, nil
+}
+
+func (s *Storage) AddManager(manager adding.Manager) error {
+	sm := Manager{
+		FplID:    manager.FplID,
+		FullName: manager.FullName,
+	}
+
+	return s.db.Create(&sm).Error
 }
