@@ -43,11 +43,14 @@ func main() {
 			nameInput = scanner.Text()
 		}
 
-		// TODO remove later
-		fmt.Println("hello " + nameInput)
-		fmt.Println("No managers found!")
-		// TODO press enter to look for someone else, or esc to exit
+		m, err := s.GetManagerByName(nameInput)
+		if err != nil {
+			fmt.Println("No managers found!")
+		} else {
+			fmt.Println(m)
+		}
 
+		// TODO press enter to look for someone else, or esc to exit
 		fmt.Println("--------------------------------")
 	}
 }
