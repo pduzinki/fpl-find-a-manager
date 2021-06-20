@@ -18,7 +18,7 @@ type Storage struct {
 //
 func NewStorage() (*Storage, error) {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(logger.Error),
 	})
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"fpl-find-a-manager/pkg/adding"
 	"fpl-find-a-manager/pkg/listing"
@@ -22,8 +23,25 @@ func main() {
 
 	adder := adding.NewService(s)
 	lister := listing.NewService(s)
-
 	wrapper := wrapper.NewWrapper()
+
+	start := time.Now()
+	for id := 1; id < 1000; id++ {
+		wm, err := wrapper.GetManager(id)
+		if err != nil {
+			panic(err)
+		}
+
+		am := adding.Manager{
+			FplID:    wm.ID,
+			FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
+		}
+
+		adder.AddManager(am)
+	}
+	duration := time.Since(start)
+	fmt.Println(duration)
+
 	wm, err := wrapper.GetManager(43741)
 	if err != nil {
 		panic(err)
@@ -37,7 +55,8 @@ func main() {
 	adder.AddManager(am)
 
 	for {
-		fmt.Println("Please type the name of the manager you're looking for, or [ctrl+c] to exit:")
+		fmt.Println("Please type the name of the manager " +
+			"you're looking for, or [ctrl+c] to exit:")
 
 		var nameInput string
 		scanner := bufio.NewScanner(os.Stdin)
