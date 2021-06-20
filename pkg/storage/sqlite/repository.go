@@ -3,6 +3,7 @@ package sqlite
 import (
 	"fmt"
 	"fpl-find-a-manager/pkg/adding"
+	"fpl-find-a-manager/pkg/listing"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -41,11 +42,12 @@ func (s *Storage) AddManager(manager adding.Manager) error {
 }
 
 //
-func (s *Storage) GetManagerByName(name string) (*Manager, error) {
-	manager := Manager{}
+func (s *Storage) GetManagerByName(name string) (*listing.Manager, error) {
+	manager := listing.Manager{}
 
 	err := s.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
 		First(&manager).Error
+	// TODO remove First(), and return a slice instead
 
 	return &manager, err
 }

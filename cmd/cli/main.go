@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"fpl-find-a-manager/pkg/adding"
+	"fpl-find-a-manager/pkg/listing"
 	"fpl-find-a-manager/pkg/storage/sqlite"
 	"fpl-find-a-manager/pkg/wrapper"
 )
@@ -20,6 +21,7 @@ func main() {
 	}
 
 	adder := adding.NewService(s)
+	lister := listing.NewService(s)
 
 	wrapper := wrapper.NewWrapper()
 	wm, err := wrapper.GetManager(43741)
@@ -43,7 +45,7 @@ func main() {
 			nameInput = scanner.Text()
 		}
 
-		m, err := s.GetManagerByName(nameInput)
+		m, err := lister.GetManagerByName(nameInput)
 		if err != nil {
 			fmt.Println("No managers found!")
 		} else {
