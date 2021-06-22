@@ -52,9 +52,21 @@ func (s *service) AddAllManagers() {
 	}
 
 	fmt.Printf("Last ID is: %d\n", s.lastID)
+	ticker := time.NewTicker(60 * time.Second)
 
 	start := time.Now()
+
 	for id := s.lastID + 1; id < 10_000_000; id++ {
+		// TODO remove the code below later
+		go func() {
+			for {
+				select {
+				case <-ticker.C:
+					fmt.Println(id)
+				}
+			}
+		}()
+
 		wm, err := s.w.GetManager(id)
 		if err != nil {
 			return
