@@ -2,11 +2,16 @@ package wrapper
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"time"
 )
+
+var errHTTPStatusNotOK error = errors.New("Returned http status is not 200")
+var errReadFailure error = errors.New("Failed to read the response")
+var errUnmarshalFailure error = errors.New("Failed to unmarshal data")
 
 // Wrapper is a helper interface around FPL API
 type Wrapper interface {
@@ -54,14 +59,18 @@ func (w *wrapper) fetchData(url string, data interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return errHTTPStatusNotOK
+	}
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return errReadFailure
 	}
 
 	err = json.Unmarshal(body, data)
 	if err != nil {
-		return err
+		return errUnmarshalFailure
 	}
 
 	return nil

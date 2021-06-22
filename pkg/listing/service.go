@@ -10,6 +10,7 @@ type Service interface {
 //
 type Repository interface {
 	GetManagerByName(name string) (*Manager, error)
+	// GetLastManager() (*Manager, error)
 }
 
 type service struct {

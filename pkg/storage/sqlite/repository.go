@@ -1,6 +1,7 @@
 package sqlite
 
 import (
+	"errors"
 	"fmt"
 	"fpl-find-a-manager/pkg/adding"
 	"fpl-find-a-manager/pkg/listing"
@@ -10,6 +11,8 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+var ErrRecordNotFound error = errors.New("Record not found")
+
 //
 type Storage struct {
 	db *gorm.DB
@@ -18,7 +21,7 @@ type Storage struct {
 //
 func NewStorage() (*Storage, error) {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Error),
+		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
 		return nil, err
@@ -48,6 +51,20 @@ func (s *Storage) GetManagerByName(name string) (*listing.Manager, error) {
 	err := s.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
 		First(&manager).Error
 	// TODO remove First(), and return a slice instead
+
+	return &manager, err
+}
+
+//
+func (s *Storage) GetLastManager() (*listing.Manager, error) {
+	manager := listing.Manager{}
+	err := s.db.Last(&manager).Error
+
+	if err == gorm.ErrRecordNotFound {
+		return nil, ErrRecordNotFound
+	} else if err != nil {
+		return nil, err
+	}
 
 	return &manager, err
 }
