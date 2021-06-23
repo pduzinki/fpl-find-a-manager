@@ -50,9 +50,18 @@ func (s *Storage) GetManagerByName(name string) (*listing.Manager, error) {
 
 	err := s.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
 		First(&manager).Error
-	// TODO remove First(), and return a slice instead
 
 	return &manager, err
+}
+
+//
+func (s *Storage) GetManagersByName(name string) ([]listing.Manager, error) {
+	managers := make([]listing.Manager, 0)
+
+	err := s.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
+		Find(&managers).Error
+
+	return managers, err
 }
 
 //

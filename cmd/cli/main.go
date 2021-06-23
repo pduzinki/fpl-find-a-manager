@@ -34,7 +34,7 @@ func main() {
 			nameInput = scanner.Text()
 		}
 
-		m, err := lister.GetManagerByName(nameInput)
+		m, err := lister.GetManagersByName(nameInput)
 		if err != nil {
 			fmt.Println("No managers found!")
 		} else {
