@@ -36,6 +36,8 @@ func main() {
 
 		m, err := lister.GetManagersByName(nameInput)
 		if err != nil {
+			fmt.Println("Something went wrong!")
+		} else if len(m) == 0 {
 			fmt.Println("No managers found!")
 		} else {
 			fmt.Println(m)
