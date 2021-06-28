@@ -16,6 +16,7 @@ var errUnmarshalFailure error = errors.New("Failed to unmarshal data")
 // Wrapper is a helper interface around FPL API
 type Wrapper interface {
 	GetManager(id int) (*Manager, error)
+	GetManagersCount() (int, error)
 }
 
 type wrapper struct {
@@ -44,6 +45,19 @@ func (w *wrapper) GetManager(id int) (*Manager, error) {
 	}
 
 	return &manager, nil
+}
+
+// GetManagersCount returns number of total managers, from FPL API "/api/bootstrap-static/" endpoint
+func (w *wrapper) GetManagersCount() (int, error) {
+	url := fmt.Sprintf(w.baseURL + "/bootstrap-static/")
+	var tp totalPlayers
+
+	err := w.fetchData(url, &tp)
+	if err != nil {
+		return 0, err
+	}
+
+	return tp.Count, nil
 }
 
 func (w *wrapper) fetchData(url string, data interface{}) error {

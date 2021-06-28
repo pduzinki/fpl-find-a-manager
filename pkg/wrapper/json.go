@@ -5,3 +5,7 @@ type Manager struct {
 	FirstName string `json:"player_first_name"`
 	LastName  string `json:"player_last_name"`
 }
+
+type totalPlayers struct {
+	Count int `json:"total_players"`
+}

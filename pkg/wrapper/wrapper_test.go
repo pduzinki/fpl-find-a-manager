@@ -14,4 +14,10 @@ func TestDummy(t *testing.T) {
 	}
 
 	fmt.Println(manager)
+
+	count, err := w.GetManagersCount()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(count)
 }
