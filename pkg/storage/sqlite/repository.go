@@ -45,14 +45,14 @@ func (s *Storage) AddManager(manager adding.Manager) error {
 }
 
 //
-func (s *Storage) GetManagerByName(name string) (*listing.Manager, error) {
-	manager := listing.Manager{}
+// func (s *Storage) GetManagerByName(name string) (*listing.Manager, error) {
+// 	manager := listing.Manager{}
 
-	err := s.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
-		First(&manager).Error
+// 	err := s.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
+// 		First(&manager).Error
 
-	return &manager, err
-}
+// 	return &manager, err
+// }
 
 //
 func (s *Storage) GetManagersByName(name string) ([]listing.Manager, error) {

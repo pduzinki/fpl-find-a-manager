@@ -2,22 +2,20 @@ package adding
 
 import (
 	"fmt"
-	"time"
 
-	"fpl-find-a-manager/pkg/listing"
 	"fpl-find-a-manager/pkg/wrapper"
 )
 
 //
 type Service interface {
 	AddManager(manager Manager) // TODO remove it later
-	AddAllManagers()
+	// AddAllManagers()
 }
 
 //
 type Repository interface {
 	AddManager(manager Manager) error
-	GetLastManager() (*listing.Manager, error) // TODO clear this mess
+	// GetLastManager() (*listing.Manager, error) // TODO clear this mess
 }
 
 type service struct {
@@ -43,42 +41,43 @@ func (s *service) AddManager(manager Manager) {
 	}
 }
 
-func (s *service) AddAllManagers() {
-	manager, err := s.r.GetLastManager()
-	if err != nil {
-		s.lastID = 0
-	} else {
-		s.lastID = manager.FplID
-	}
+// func (s *service) AddAllManagers() {
+// 	manager, err := s.r.GetLastManager()
+// 	if err != nil {
+// 		s.lastID = 0
+// 	} else {
+// 		s.lastID = manager.FplID
+// 	}
 
-	fmt.Printf("Last ID is: %d\n", s.lastID)
-	ticker := time.NewTicker(60 * time.Second)
+// 	fmt.Printf("Last ID is: %d\n", s.lastID)
+// 	ticker := time.NewTicker(60 * time.Second)
 
-	start := time.Now()
+// 	start := time.Now()
 
-	for id := s.lastID + 1; id < 10_000_000; id++ {
-		// TODO remove the code below later
-		go func() {
-			for {
-				select {
-				case <-ticker.C:
-					fmt.Println(id)
-				}
-			}
-		}()
+// 	for id := s.lastID + 1; id < 10_000_000; id++ {
+// 		// TODO remove the code below later
+// 		go func() {
+// 			for {
+// 				select {
+// 				case <-ticker.C:
+// 					fmt.Println(id)
+// 				}
+// 			}
+// 		}()
 
-		wm, err := s.w.GetManager(id)
-		if err != nil {
-			return
-		}
+// 		wm, err := s.w.GetManager(id)
+// 		if err != nil {
+// 			fmt.Println("hello there")
+// 			return
+// 		}
 
-		am := Manager{
-			FplID:    wm.ID,
-			FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
-		}
+// 		am := Manager{
+// 			FplID:    wm.ID,
+// 			FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
+// 		}
 
-		s.AddManager(am)
-	}
-	duration := time.Since(start)
-	fmt.Println(duration)
-}
+// 		s.AddManager(am)
+// 	}
+// 	duration := time.Since(start)
+// 	fmt.Println(duration)
+// }

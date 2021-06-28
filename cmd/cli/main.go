@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"fpl-find-a-manager/pkg/adding"
+	"fpl-find-a-manager/pkg/filling"
 	"fpl-find-a-manager/pkg/listing"
 	"fpl-find-a-manager/pkg/storage/sqlite"
 )
@@ -21,8 +22,10 @@ func main() {
 
 	adder := adding.NewService(s)
 	lister := listing.NewService(s)
+	filler := filling.NewService(adder, lister)
 
-	go adder.AddAllManagers()
+	go filler.Fill()
+	// go adder.AddAllManagers()
 
 	for {
 		fmt.Println("Please type the name of the manager " +
