@@ -3,29 +3,33 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
 
-	"fpl-find-a-manager/pkg/adding"
-	"fpl-find-a-manager/pkg/filling"
-	"fpl-find-a-manager/pkg/listing"
-	"fpl-find-a-manager/pkg/storage/sqlite"
+	"fpl-find-a-manager/pkg/controllers"
+	"fpl-find-a-manager/pkg/models"
 )
 
 func main() {
 	fmt.Println("Welcome to 'Find a manager' fpl app!")
 
-	s, err := sqlite.NewStorage()
-	if err != nil {
-		log.Fatalln("Failed to create storage!")
-	}
+	ms := models.NewManagerService()
+	defer ms.Close()
 
-	adder := adding.NewService(s)
-	lister := listing.NewService(s)
-	filler := filling.NewService(adder, lister)
+	mc := controllers.NewManagerController(ms)
 
-	go filler.Fill()
-	// go adder.AddAllManagers()
+	go mc.AddManagers()
+
+	// s, err := sqlite.NewStorage()
+	// if err != nil {
+	// 	log.Fatalln("Failed to create storage!")
+	// }
+
+	// adder := adding.NewService(s)
+	// lister := listing.NewService(s)
+	// filler := filling.NewService(adder, lister)
+
+	// go filler.Fill()
+	// // go adder.AddAllManagers()
 
 	for {
 		fmt.Println("Please type the name of the manager " +
@@ -37,7 +41,7 @@ func main() {
 			nameInput = scanner.Text()
 		}
 
-		m, err := lister.GetManagersByName(nameInput)
+		m, err := mc.MatchManagersByName(nameInput)
 		if err != nil {
 			fmt.Println("Something went wrong!")
 		} else if len(m) == 0 {
@@ -46,7 +50,16 @@ func main() {
 			fmt.Println(m)
 		}
 
-		// TODO press enter to look for someone else, or esc to exit
-		fmt.Println("--------------------------------")
+		// 	m, err := lister.GetManagersByName(nameInput)
+		// 	if err != nil {
+		// 		fmt.Println("Something went wrong!")
+		// 	} else if len(m) == 0 {
+		// 		fmt.Println("No managers found!")
+		// 	} else {
+		// 		fmt.Println(m)
+		// 	}
+
+		// 	// TODO press enter to look for someone else, or esc to exit
+		// 	fmt.Println("--------------------------------")
 	}
 }
