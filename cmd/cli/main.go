@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 
 	"fpl-find-a-manager/pkg/controllers"
@@ -14,25 +15,12 @@ func main() {
 
 	ms, err := models.NewManagerService()
 	if err != nil {
-		fmt.Println("Failed to init models service!")
-		panic(err)
+		log.Fatalln("Failed to init models service!")
 	}
 
 	mc := controllers.NewManagerController(ms)
 
 	go mc.AddManagers()
-
-	// s, err := sqlite.NewStorage()
-	// if err != nil {
-	// 	log.Fatalln("Failed to create storage!")
-	// }
-
-	// adder := adding.NewService(s)
-	// lister := listing.NewService(s)
-	// filler := filling.NewService(adder, lister)
-
-	// go filler.Fill()
-	// // go adder.AddAllManagers()
 
 	for {
 		fmt.Println("Please type the name of the manager " +
@@ -52,17 +40,6 @@ func main() {
 		} else {
 			fmt.Println(m)
 		}
-
-		// 	m, err := lister.GetManagersByName(nameInput)
-		// 	if err != nil {
-		// 		fmt.Println("Something went wrong!")
-		// 	} else if len(m) == 0 {
-		// 		fmt.Println("No managers found!")
-		// 	} else {
-		// 		fmt.Println(m)
-		// 	}
-
-		// 	// TODO press enter to look for someone else, or esc to exit
-		// 	fmt.Println("--------------------------------")
+		// TODO press enter to look for someone else, or esc to exit
 	}
 }
