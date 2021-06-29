@@ -12,8 +12,11 @@ import (
 func main() {
 	fmt.Println("Welcome to 'Find a manager' fpl app!")
 
-	ms := models.NewManagerService()
-	defer ms.Close()
+	ms, err := models.NewManagerService()
+	if err != nil {
+		fmt.Println("Failed to init models service!")
+		panic(err)
+	}
 
 	mc := controllers.NewManagerController(ms)
 

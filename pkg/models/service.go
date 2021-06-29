@@ -1,31 +1,46 @@
 package models
 
 import (
+	"fmt"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type ManagerService interface {
-	Close()
+	AddManager(manager *Manager) error
+	MatchManagersByName(name string) ([]Manager, error)
 }
 
 type managerService struct {
+	db *gorm.DB
 }
 
-func NewManagerService() ManagerService {
+func NewManagerService() (ManagerService, error) {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
-	_ = db
+	db.AutoMigrate(&Manager{})
 
-	return nil
+	return &managerService{
+		db: db,
+	}, nil
 }
 
-func (ms *managerService) Close() {
+func (ms *managerService) AddManager(manager *Manager) error {
+	return ms.db.Create(&manager).Error
+}
 
+func (ms *managerService) MatchManagersByName(name string) ([]Manager, error) {
+	managers := make([]Manager, 0)
+
+	err := ms.db.Where("full_name LIKE ?", fmt.Sprintf("%%%s%%", name)).
+		Find(&managers).Error
+
+	return managers, err
 }
