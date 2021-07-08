@@ -33,6 +33,8 @@ func (mc *ManagerController) MatchManagersByName(name string) ([]models.Manager,
 // AddManagers constantly queries FPL API wrapper and keeps managers db up-to-date.
 // Should be run in goroutine.
 func (mc *ManagerController) AddManagers() {
+	// TODO add all managers
+
 	wm, err := mc.w.GetManager(1239)
 	if err != nil {
 		fmt.Println("failed to get manager via fpl api")
