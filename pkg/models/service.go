@@ -69,7 +69,13 @@ func (mv *managerValidator) AddManager(manager *Manager) error {
 }
 
 func (mv *managerValidator) MatchManagersByName(name string) ([]Manager, error) {
-	// TODO add validations
+	m := Manager{}
+	m.FullName = name
+	err := runManagerValidatorFuncs(&m, mv.FullNameLongerThanThreeRunes)
+	if err != nil {
+		return nil, err
+	}
+
 	return mv.ManagerDB.MatchManagersByName(name)
 }
 
