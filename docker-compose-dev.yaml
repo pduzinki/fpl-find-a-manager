@@ -1,0 +1,16 @@
+version: "2.1"
+
+services:
+  postgres:
+    image: postgres:13.0
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    env_file:
+      - config-dev.env
+    volumes:
+      - fpl-find-a-manager-data-dev:/var/lib/postgresql/data
+
+volumes:
+  fpl-find-a-manager-data-dev:

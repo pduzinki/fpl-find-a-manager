@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"fpl-find-a-manager/pkg/config"
 	"fpl-find-a-manager/pkg/controllers"
 	"fpl-find-a-manager/pkg/models"
 )
@@ -13,7 +14,9 @@ import (
 func main() {
 	fmt.Println("Welcome to 'Find a manager' fpl app!")
 
-	ms, err := models.NewManagerService()
+	cfg := config.Load()
+
+	ms, err := models.NewManagerService(cfg.DBConfig)
 	if err != nil {
 		log.Fatalln("Failed to init models service!")
 	}

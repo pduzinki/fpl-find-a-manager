@@ -2,8 +2,9 @@ package models
 
 import (
 	"fmt"
+	"fpl-find-a-manager/pkg/config"
 
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -24,8 +25,11 @@ type managerService struct {
 }
 
 //
-func NewManagerService() (ManagerService, error) {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{
+func NewManagerService(cfg config.DatabaseConfig) (ManagerService, error) {
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=%s",
+		cfg.Host, cfg.User, cfg.Password, cfg.Name, 5432, "disable")
+
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
