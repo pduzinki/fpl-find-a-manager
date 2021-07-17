@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fpl-find-a-manager/pkg/models"
 	"fpl-find-a-manager/pkg/wrapper"
+	"time"
 )
 
 //
@@ -33,19 +34,23 @@ func (mc *ManagerController) MatchManagersByName(name string) ([]models.Manager,
 // AddManagers constantly queries FPL API wrapper and keeps managers db up-to-date.
 // Should be run in goroutine.
 func (mc *ManagerController) AddManagers() {
-	// TODO add all managers
+	start := time.Now()
 
-	wm, err := mc.w.GetManager(1239)
-	if err != nil {
-		fmt.Println("failed to get manager via fpl api")
+	for id := 1; id <= 1000; id++ {
+
+		wm, err := mc.w.GetManager(id)
+		if err != nil {
+			fmt.Println("failed to get manager via fpl api")
+		}
+
+		am := models.Manager{
+			FplID:    wm.ID,
+			FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
+		}
+
+		mc.ms.AddManager(&am)
 	}
 
-	am := models.Manager{
-		FplID:    wm.ID,
-		FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
-	}
-
-	mc.ms.AddManager(&am)
-
-	fmt.Println(wm)
+	duration := time.Since(start)
+	fmt.Printf("It took %v to add 1000 fpl managers\n", duration)
 }

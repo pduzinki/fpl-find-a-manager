@@ -33,9 +33,11 @@ func NewManagerService(cfg config.DatabaseConfig) (ManagerService, error) {
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
+	db.Migrator().DropTable(&Manager{}) // TODO remove later
 	db.AutoMigrate(&Manager{})
 
 	mg := newManagerGorm(db)
