@@ -34,11 +34,61 @@ func (mc *ManagerController) MatchManagersByName(name string) ([]models.Manager,
 // AddManagers constantly queries FPL API wrapper and keeps managers db up-to-date.
 // Should be run in goroutine.
 func (mc *ManagerController) AddManagers() {
-	start := time.Now()
+	// init worker pool
+	// query fpl api via workers
+	// collect 1000 entries (managers)
+	// sort managers
+	// put them in the database (in batch)
+	// repeat until all managers are in the database
 
-	for id := 1; id <= 1000; id++ {
+	totalManagers, err := mc.w.GetManagersCount()
+	if err != nil {
+		panic("shiet")
+	}
 
-		wm, err := mc.w.GetManager(id)
+	addedManagers := 0
+
+	for totalManagers > addedManagers {
+		start := time.Now()
+
+		var numJobs = 1000
+		if totalManagers-addedManagers < 1000 {
+			numJobs = totalManagers - addedManagers
+		}
+
+		jobs := make(chan int, numJobs)
+		results := make(chan models.Manager, numJobs)
+
+		for w := 1; w <= 4; w++ {
+			go mc.worker(w, jobs, results)
+		}
+
+		for j := 1 + addedManagers; j <= numJobs+addedManagers; j++ {
+			// fmt.Println(j)
+			jobs <- j
+		}
+		close(jobs)
+
+		managers := make([]models.Manager, 0, 1_000)
+
+		for a := 1; a <= numJobs; a++ {
+			// tmp := <-results
+			// fmt.Println(tmp)
+			managers = append(managers, <-results)
+		}
+
+		duration := time.Since(start)
+		fmt.Printf("It took %v to add 1000 fpl managers\n", duration)
+
+		mc.ms.AddManagers(managers)
+
+		addedManagers += numJobs
+	}
+}
+
+func (mc *ManagerController) worker(id int, jobs <-chan int, results chan<- models.Manager) {
+	for j := range jobs {
+		wm, err := mc.w.GetManager(j)
 		if err != nil {
 			fmt.Println("failed to get manager via fpl api")
 		}
@@ -48,9 +98,6 @@ func (mc *ManagerController) AddManagers() {
 			FullName: fmt.Sprintf("%s %s", wm.FirstName, wm.LastName),
 		}
 
-		mc.ms.AddManager(&am)
+		results <- am
 	}
-
-	duration := time.Since(start)
-	fmt.Printf("It took %v to add 1000 fpl managers\n", duration)
 }

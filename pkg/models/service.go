@@ -12,6 +12,7 @@ import (
 //
 type ManagerDB interface {
 	AddManager(manager *Manager) error
+	AddManagers(managers []Manager) error
 	MatchManagersByName(name string) ([]Manager, error)
 }
 
@@ -54,6 +55,11 @@ func (ms *managerService) AddManager(manager *Manager) error {
 }
 
 //
+func (ms *managerService) AddManagers(managers []Manager) error {
+	return ms.ManagerDB.AddManagers(managers)
+}
+
+//
 func (ms *managerService) MatchManagersByName(name string) ([]Manager, error) {
 	return ms.ManagerDB.MatchManagersByName(name)
 }
@@ -72,6 +78,11 @@ func newManagerValidator(m ManagerDB) *managerValidator {
 func (mv *managerValidator) AddManager(manager *Manager) error {
 	// TODO add validations
 	return mv.ManagerDB.AddManager(manager)
+}
+
+func (mv *managerValidator) AddManagers(managers []Manager) error {
+	// TODO add validations
+	return mv.ManagerDB.AddManagers(managers)
 }
 
 func (mv *managerValidator) MatchManagersByName(name string) ([]Manager, error) {
@@ -98,6 +109,10 @@ func newManagerGorm(db *gorm.DB) *managerGorm {
 
 func (mg *managerGorm) AddManager(manager *Manager) error {
 	return mg.db.Create(&manager).Error
+}
+
+func (mg *managerGorm) AddManagers(managers []Manager) error {
+	return mg.db.Create(managers).Error
 }
 
 func (mg *managerGorm) MatchManagersByName(name string) ([]Manager, error) {
