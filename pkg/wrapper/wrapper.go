@@ -73,6 +73,7 @@ func (w *wrapper) fetchData(url string, data interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	// TODO check rate limiting error
 	if resp.StatusCode != http.StatusOK {
 		return errHTTPStatusNotOK
 	}

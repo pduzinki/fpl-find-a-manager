@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"fpl-find-a-manager/pkg/models"
 	"fpl-find-a-manager/pkg/wrapper"
+	"sort"
 	"time"
 )
 
@@ -46,7 +47,7 @@ func (mc *ManagerController) AddManagers() {
 		panic("shiet")
 	}
 
-	addedManagers := 0
+	addedManagers := 0 // TODO use this later
 
 	for totalManagers > addedManagers {
 		start := time.Now()
@@ -59,12 +60,11 @@ func (mc *ManagerController) AddManagers() {
 		jobs := make(chan int, numJobs)
 		results := make(chan models.Manager, numJobs)
 
-		for w := 1; w <= 4; w++ {
+		for w := 1; w <= 1; w++ {
 			go mc.worker(w, jobs, results)
 		}
 
 		for j := 1 + addedManagers; j <= numJobs+addedManagers; j++ {
-			// fmt.Println(j)
 			jobs <- j
 		}
 		close(jobs)
@@ -72,13 +72,13 @@ func (mc *ManagerController) AddManagers() {
 		managers := make([]models.Manager, 0, 1_000)
 
 		for a := 1; a <= numJobs; a++ {
-			// tmp := <-results
-			// fmt.Println(tmp)
 			managers = append(managers, <-results)
 		}
 
 		duration := time.Since(start)
 		fmt.Printf("It took %v to add 1000 fpl managers\n", duration)
+
+		sort.Sort(models.Managers(managers)) // so ID == fplID
 
 		mc.ms.AddManagers(managers)
 
@@ -86,11 +86,14 @@ func (mc *ManagerController) AddManagers() {
 	}
 }
 
+// TODO set worker pool count to 1, then make it handle errors properly (wait and repeat on rate limiting, exit on others)
+
 func (mc *ManagerController) worker(id int, jobs <-chan int, results chan<- models.Manager) {
 	for j := range jobs {
 		wm, err := mc.w.GetManager(j)
 		if err != nil {
 			fmt.Println("failed to get manager via fpl api")
+			return
 		}
 
 		am := models.Manager{
