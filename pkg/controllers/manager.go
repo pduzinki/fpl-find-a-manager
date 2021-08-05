@@ -13,8 +13,8 @@ import (
 var sleeps = []time.Duration{
 	2 * time.Second,
 	5 * time.Second,
-	45 * time.Second,
-	60 * time.Second,
+	2 * time.Minute,
+	5 * time.Minute,
 }
 
 //
@@ -52,15 +52,26 @@ func (mc *ManagerController) AddManagers() {
 	// repeat until all managers are in the database
 
 	for {
-		totalManagers, err := mc.w.GetManagersCount()
-		if err != nil {
-			panic("shiet")
-		}
-		log.Println("FPL managers in the game:", totalManagers)
+		var totalManagers int
+		var addedManagers int
+		var err error
 
-		addedManagers, err := mc.ms.ManagersCount()
+		for {
+			totalManagers, err = mc.w.GetManagersCount()
+			if err != nil {
+				retryAfter := 5 * time.Minute
+				log.Println("Failed to retrieve number of FPL managers, retry in", retryAfter)
+				time.Sleep(retryAfter)
+				continue
+			}
+			log.Println("FPL managers in the game:", totalManagers)
+			break
+		}
+
+		addedManagers, err = mc.ms.ManagersCount()
 		if err != nil {
-			panic("shiet")
+			log.Println("Failed to retrieve number of FPL managers in the database!")
+			return
 		}
 		log.Println("FPL managers in the database:", addedManagers)
 
@@ -91,7 +102,7 @@ func (mc *ManagerController) AddManagers() {
 			}
 
 			duration := time.Since(start)
-			log.Printf("################ It took %v to add %v fpl managers\n", duration, numJobs)
+			log.Printf("#### It took %v to add %v fpl managers\n", duration, numJobs)
 
 			sort.Sort(models.Managers(managers)) // so ID == fplID
 			mc.ms.AddManagers(managers)
@@ -112,18 +123,18 @@ func (mc *ManagerController) worker(id int, jobs chan int, results chan<- models
 		wm, err := w.GetManager(j)
 		if err == wrapper.ErrHTTPStatusNotFound {
 			// no more managers to add, worker can be closed
-			log.Println("FPL API call returned http 404, closing worker")
+			log.Printf("FPL API call returned http 404, closing worker %v", id)
 			return
 		} else if err == wrapper.ErrHTTPTooManyRequests {
 			// hit rate limit, let's sleep here for a bit, return job to pool
 			jobs <- j
 			sleepDuration := sleeps[rand.Intn(len(sleeps))]
-			log.Println("FPL API call returned http 429, worker going to sleep for", sleepDuration)
+			log.Printf("FPL API call returned http 429, worker %v going to sleep for %v", id, sleepDuration)
 			time.Sleep(sleepDuration)
 			continue
 		} else if err != nil {
 			jobs <- j
-			log.Printf("FPL API call returned %v, worker going to sleep.", err)
+			log.Printf("FPL API call returned '%v', worker %v going to sleep.", err, id)
 			time.Sleep(10 * time.Minute)
 			continue
 		}
