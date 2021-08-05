@@ -11,10 +11,10 @@ import (
 )
 
 var sleeps = []time.Duration{
-	2 * time.Second,
-	5 * time.Second,
-	2 * time.Minute,
-	5 * time.Minute,
+	15 * time.Second,
+	20 * time.Second,
+	15 * time.Minute,
+	20 * time.Minute,
 }
 
 //
@@ -81,7 +81,7 @@ func (mc *ManagerController) AddManagers() {
 		results := make(chan models.Manager, numJobs)
 
 		for w := 1; w <= goroutinesCount; w++ {
-			go mc.worker(w, jobs, results)
+			go mc.getManagersFromFPL(w, jobs, results)
 		}
 
 		for totalManagers > addedManagers {
@@ -102,7 +102,7 @@ func (mc *ManagerController) AddManagers() {
 			}
 
 			duration := time.Since(start)
-			log.Printf("#### It took %v to add %v fpl managers\n", duration, numJobs)
+			log.Printf("It took %v to add %v fpl managers\n", duration, numJobs)
 
 			sort.Sort(models.Managers(managers)) // so ID == fplID
 			mc.ms.AddManagers(managers)
@@ -116,7 +116,7 @@ func (mc *ManagerController) AddManagers() {
 	}
 }
 
-func (mc *ManagerController) worker(id int, jobs chan int, results chan<- models.Manager) {
+func (mc *ManagerController) getManagersFromFPL(id int, jobs chan int, results chan<- models.Manager) {
 	w := wrapper.NewWrapper()
 
 	for j := range jobs {
@@ -135,7 +135,7 @@ func (mc *ManagerController) worker(id int, jobs chan int, results chan<- models
 		} else if err != nil {
 			jobs <- j
 			log.Printf("FPL API call returned '%v', worker %v going to sleep.", err, id)
-			time.Sleep(10 * time.Minute)
+			time.Sleep(sleeps[len(sleeps)-1])
 			continue
 		}
 
