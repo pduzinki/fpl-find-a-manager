@@ -9,7 +9,9 @@ import (
 	"time"
 )
 
-var errHTTPStatusNotOK error = errors.New("Returned http status is not 200")
+var ErrHTTPStatusNotOK error = errors.New("Response status != http 200")
+var ErrHTTPTooManyRequests error = errors.New("Response status - http 429 - too many requests")
+var ErrHTTPStatusNotFound error = errors.New("Response status - http 404 - not found")
 var errReadFailure error = errors.New("Failed to read the response")
 var errUnmarshalFailure error = errors.New("Failed to unmarshal data")
 
@@ -73,9 +75,12 @@ func (w *wrapper) fetchData(url string, data interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	// TODO check rate limiting error
-	if resp.StatusCode != http.StatusOK {
-		return errHTTPStatusNotOK
+	if resp.StatusCode == http.StatusTooManyRequests {
+		return ErrHTTPTooManyRequests
+	} else if resp.StatusCode == http.StatusNotFound {
+		return ErrHTTPStatusNotFound
+	} else if resp.StatusCode != http.StatusOK {
+		return ErrHTTPStatusNotOK
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
