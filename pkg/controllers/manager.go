@@ -55,14 +55,16 @@ func (mc *ManagerController) AddManagers() {
 	if err != nil {
 		panic("shiet")
 	}
+	log.Println("Current FPL managers count:", totalManagers)
 
 	addedManagers := 0 // TODO use this later
 
+	var goroutinesCount = 64
 	var numJobs = 1000
 	jobs := make(chan int, numJobs)
 	results := make(chan models.Manager, numJobs)
 
-	for w := 1; w <= 64; w++ {
+	for w := 1; w <= goroutinesCount; w++ {
 		go mc.worker(w, jobs, results)
 	}
 
@@ -84,7 +86,7 @@ func (mc *ManagerController) AddManagers() {
 		}
 
 		duration := time.Since(start)
-		fmt.Printf("################ It took %v to add %v fpl managers\n", duration, numJobs)
+		log.Printf("################ It took %v to add %v fpl managers\n", duration, numJobs)
 
 		sort.Sort(models.Managers(managers)) // so ID == fplID
 		mc.ms.AddManagers(managers)
