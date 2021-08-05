@@ -12,6 +12,15 @@ import (
 )
 
 func main() {
+	f, err := os.Create("log.txt")
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+
+	log.SetOutput(f)
+	// log.SetOutput(ioutil.Discard)
+
 	fmt.Println("Welcome to 'Find a manager' fpl app!")
 
 	cfg := config.Load()

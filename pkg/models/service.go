@@ -14,6 +14,7 @@ type ManagerDB interface {
 	AddManager(manager *Manager) error
 	AddManagers(managers []Manager) error
 	MatchManagersByName(name string) ([]Manager, error)
+	ManagersCount() (int, error)
 }
 
 //
@@ -38,7 +39,7 @@ func NewManagerService(cfg config.DatabaseConfig) (ManagerService, error) {
 		return nil, err
 	}
 
-	db.Migrator().DropTable(&Manager{}) // TODO remove later
+	// db.Migrator().DropTable(&Manager{})
 	db.AutoMigrate(&Manager{})
 
 	mg := newManagerGorm(db)
@@ -122,4 +123,11 @@ func (mg *managerGorm) MatchManagersByName(name string) ([]Manager, error) {
 		Find(&managers).Error
 
 	return managers, err
+}
+
+func (mg *managerGorm) ManagersCount() (int, error) {
+	var count int64
+	err := mg.db.Model(&Manager{}).Count(&count).Error
+
+	return int(count), err
 }

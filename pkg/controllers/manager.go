@@ -13,8 +13,8 @@ import (
 var sleeps = []time.Duration{
 	2 * time.Second,
 	5 * time.Second,
-	20 * time.Second,
-	30 * time.Second,
+	45 * time.Second,
+	60 * time.Second,
 }
 
 //
@@ -51,47 +51,57 @@ func (mc *ManagerController) AddManagers() {
 	// put them in the database (in batch)
 	// repeat until all managers are in the database
 
-	totalManagers, err := mc.w.GetManagersCount()
-	if err != nil {
-		panic("shiet")
-	}
-	log.Println("Current FPL managers count:", totalManagers)
+	for {
+		totalManagers, err := mc.w.GetManagersCount()
+		if err != nil {
+			panic("shiet")
+		}
+		log.Println("FPL managers in the game:", totalManagers)
 
-	addedManagers := 0 // TODO use this later
+		addedManagers, err := mc.ms.ManagersCount()
+		if err != nil {
+			panic("shiet")
+		}
+		log.Println("FPL managers in the database:", addedManagers)
 
-	var goroutinesCount = 64
-	var numJobs = 1000
-	jobs := make(chan int, numJobs)
-	results := make(chan models.Manager, numJobs)
+		var goroutinesCount = 64
+		var numJobs = 1000
+		jobs := make(chan int, numJobs)
+		results := make(chan models.Manager, numJobs)
 
-	for w := 1; w <= goroutinesCount; w++ {
-		go mc.worker(w, jobs, results)
-	}
-
-	for totalManagers > addedManagers {
-		start := time.Now()
-
-		if totalManagers-addedManagers < numJobs {
-			numJobs = totalManagers - addedManagers
+		for w := 1; w <= goroutinesCount; w++ {
+			go mc.worker(w, jobs, results)
 		}
 
-		for j := 1 + addedManagers; j <= numJobs+addedManagers; j++ {
-			jobs <- j
+		for totalManagers > addedManagers {
+			start := time.Now()
+
+			if totalManagers-addedManagers < numJobs {
+				numJobs = totalManagers - addedManagers
+			}
+
+			for j := 1 + addedManagers; j <= numJobs+addedManagers; j++ {
+				jobs <- j
+			}
+
+			managers := make([]models.Manager, 0, numJobs)
+
+			for len(managers) != numJobs {
+				managers = append(managers, <-results)
+			}
+
+			duration := time.Since(start)
+			log.Printf("################ It took %v to add %v fpl managers\n", duration, numJobs)
+
+			sort.Sort(models.Managers(managers)) // so ID == fplID
+			mc.ms.AddManagers(managers)
+
+			addedManagers += numJobs
 		}
 
-		managers := make([]models.Manager, 0, numJobs)
-
-		for len(managers) != numJobs {
-			managers = append(managers, <-results)
-		}
-
-		duration := time.Since(start)
-		log.Printf("################ It took %v to add %v fpl managers\n", duration, numJobs)
-
-		sort.Sort(models.Managers(managers)) // so ID == fplID
-		mc.ms.AddManagers(managers)
-
-		addedManagers += numJobs
+		// all managers added, sleep and then add newcomers
+		log.Println("Current FPL managers added, going to sleep for an hour now")
+		time.Sleep(1 * time.Hour)
 	}
 }
 
