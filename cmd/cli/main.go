@@ -44,13 +44,18 @@ func main() {
 			nameInput = scanner.Text()
 		}
 
-		m, err := mc.MatchManagersByName(nameInput)
+		managers, err := mc.MatchManagersByName(nameInput)
 		if err != nil {
 			fmt.Println("Something went wrong!")
-		} else if len(m) == 0 {
+		} else if len(managers) == 0 {
 			fmt.Println("No managers found!")
 		} else {
-			fmt.Println(m)
+			fmt.Printf("Found %v manager(s):\n", len(managers))
+			for i, m := range managers {
+				fmt.Printf("%v. %v https://fantasy.premierleague.com/entry/%v/history\n",
+					i+1, m.FullName, m.FplID)
+			}
+			fmt.Printf("\n")
 		}
 		// TODO press enter to look for someone else, or esc to exit
 	}
