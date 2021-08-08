@@ -75,7 +75,7 @@ func (mc *ManagerController) AddManagers() {
 		}
 		log.Println("FPL managers in the database:", addedManagers)
 
-		var goroutinesCount = 64
+		var goroutinesCount = 16
 		var numJobs = 1000
 		jobs := make(chan int, numJobs)
 		results := make(chan models.Manager, numJobs)

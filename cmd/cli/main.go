@@ -55,8 +55,8 @@ func main() {
 				fmt.Printf("%v. %v https://fantasy.premierleague.com/entry/%v/history\n",
 					i+1, m.FullName, m.FplID)
 			}
-			fmt.Printf("\n")
 		}
+		fmt.Printf("\n")
 		// TODO press enter to look for someone else, or esc to exit
 	}
 }
