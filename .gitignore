@@ -1,4 +1,5 @@
 TODO
 app
+app.log
 *.db
 /data

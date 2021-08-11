@@ -12,7 +12,7 @@ import (
 )
 
 func main() {
-	f, err := os.Create("log.txt")
+	f, err := os.Create("app.log")
 	if err != nil {
 		log.Println(err)
 	}

@@ -75,7 +75,7 @@ func (mc *ManagerController) AddManagers() {
 		}
 		log.Println("FPL managers in the database:", addedManagers)
 
-		var goroutinesCount = 16
+		var goroutinesCount = 32
 		var numJobs = 1000
 		jobs := make(chan int, numJobs)
 		results := make(chan models.Manager, numJobs)
@@ -122,19 +122,25 @@ func (mc *ManagerController) getManagersFromFPL(id int, jobs chan int, results c
 	for j := range jobs {
 		wm, err := w.GetManager(j)
 		if err == wrapper.ErrHTTPStatusNotFound {
-			// no more managers to add, worker can be closed
-			log.Printf("FPL API call returned http 404, closing worker %v", id)
-			return
+			// manager not found, let's add it as it is to the db, and keep going
+			log.Printf("FPL API call returned http 404, worker %v. Job: %v", id, j)
+
+			am := models.Manager{
+				FplID:    j,
+				FullName: "Manager Not Found",
+			}
+			results <- am
+			continue
 		} else if err == wrapper.ErrHTTPTooManyRequests {
 			// hit rate limit, let's sleep here for a bit, return job to pool
 			jobs <- j
 			sleepDuration := sleeps[rand.Intn(len(sleeps))]
-			log.Printf("FPL API call returned http 429, worker %v going to sleep for %v", id, sleepDuration)
+			log.Printf("FPL API call returned http 429, worker %v going to sleep for %v. Job: %v", id, sleepDuration, j)
 			time.Sleep(sleepDuration)
 			continue
 		} else if err != nil {
 			jobs <- j
-			log.Printf("FPL API call returned '%v', worker %v going to sleep.", err, id)
+			log.Printf("FPL API call returned '%v', worker %v going to sleep. Jon: %v", err, id, j)
 			time.Sleep(sleeps[len(sleeps)-1])
 			continue
 		}
