@@ -84,8 +84,24 @@ func (mc *ManagerController) AddManagers() {
 			go mc.getManagersFromFPL(w, jobs, results)
 		}
 
+		ticker := time.NewTicker(1 * time.Minute)
+		go func() {
+			for {
+				_ = <-ticker.C
+
+				addedManagers, err = mc.ms.ManagersCount()
+				if err != nil {
+					log.Println("Failed to retrieve number of FPL managers in the database!")
+					continue
+				}
+				log.Printf("Managers in the database: %v. Coverage: %.3f%%\n",
+					addedManagers, 100*float64(addedManagers)/float64(totalManagers))
+
+			}
+		}()
+
 		for totalManagers > addedManagers {
-			start := time.Now()
+			// start := time.Now()
 
 			if totalManagers-addedManagers < numJobs {
 				numJobs = totalManagers - addedManagers
@@ -101,8 +117,8 @@ func (mc *ManagerController) AddManagers() {
 				managers = append(managers, <-results)
 			}
 
-			duration := time.Since(start)
-			log.Printf("It took %v to add %v fpl managers\n", duration, numJobs)
+			// duration := time.Since(start)
+			// log.Printf("It took %v to add %v fpl managers\n", duration, numJobs)
 
 			sort.Sort(models.Managers(managers)) // so ID == fplID
 			mc.ms.AddManagers(managers)
