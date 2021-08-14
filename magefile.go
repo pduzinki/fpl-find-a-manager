@@ -12,10 +12,12 @@ import (
 
 var ErrUnknownTarget error = errors.New("Unknown target!")
 
+// Clear deletes app binary
 func Clear() error {
 	return sh.Run("rm", "app", "-f")
 }
 
+// Build compiles app binary. Options: [cli, server]
 func Build(what string) error {
 	if what != "cli" && what != "server" {
 		fmt.Printf("No such target as '%s'. Use 'cli' or 'server' instead.\n", what)
@@ -36,4 +38,11 @@ func Build(what string) error {
 	}
 	return sh.RunWith(env, "go", "build", "-ldflags="+"-w -s", "-o", "app",
 		fmt.Sprintf("./cmd/%s/", what))
+}
+
+// Docker builds an app docker image from dockerfile
+func Docker() error {
+	mg.Deps(Clear)
+
+	return sh.Run("docker", "build", "-t", "fpl-find-a-manager", ".")
 }
