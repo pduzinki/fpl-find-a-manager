@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             // "program": "${workspaceRoot}",
-            "program": "${workspaceRoot}/cmd/cli/",
+            "program": "${workspaceRoot}/cmd/server/",
             "env": {},
             "args": []
         }
