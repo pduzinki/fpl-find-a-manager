@@ -88,11 +88,9 @@ func (mc *ManagerController) AddManagers() {
 		defer ticker.Stop()
 		tickerDone := make(chan bool)
 		go func() {
-			log.Println("start ticker goroutine")
 			for {
 				select {
 				case <-tickerDone:
-					log.Println("stop ticker goroutine")
 					return
 				case <-ticker.C:
 					addedManagers, err = mc.ms.ManagersCount()
@@ -107,8 +105,6 @@ func (mc *ManagerController) AddManagers() {
 		}()
 
 		for totalManagers > addedManagers {
-			// start := time.Now()
-
 			if totalManagers-addedManagers < numJobs {
 				numJobs = totalManagers - addedManagers
 			}
@@ -123,9 +119,6 @@ func (mc *ManagerController) AddManagers() {
 				managers = append(managers, <-results)
 			}
 
-			// duration := time.Since(start)
-			// log.Printf("It took %v to add %v fpl managers\n", duration, numJobs)
-
 			sort.Sort(models.Managers(managers)) // so ID == fplID
 			mc.ms.AddManagers(managers)
 
@@ -133,6 +126,7 @@ func (mc *ManagerController) AddManagers() {
 		}
 
 		tickerDone <- true
+		close(jobs)
 
 		// all managers added, sleep and then add newcomers
 		log.Println("Current FPL managers added, going to sleep for an hour now")
