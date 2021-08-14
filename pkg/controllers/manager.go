@@ -85,18 +85,24 @@ func (mc *ManagerController) AddManagers() {
 		}
 
 		ticker := time.NewTicker(1 * time.Minute)
+		defer ticker.Stop()
+		tickerDone := make(chan bool)
 		go func() {
+			log.Println("start ticker goroutine")
 			for {
-				_ = <-ticker.C
-
-				addedManagers, err = mc.ms.ManagersCount()
-				if err != nil {
-					log.Println("Failed to retrieve number of FPL managers in the database!")
-					continue
+				select {
+				case <-tickerDone:
+					log.Println("stop ticker goroutine")
+					return
+				case <-ticker.C:
+					addedManagers, err = mc.ms.ManagersCount()
+					if err != nil {
+						log.Println("Failed to retrieve number of FPL managers in the database!")
+						continue
+					}
+					log.Printf("Managers in the database: %v. Coverage: %.2f%%\n",
+						addedManagers, 100*float64(addedManagers)/float64(totalManagers))
 				}
-				log.Printf("Managers in the database: %v. Coverage: %.3f%%\n",
-					addedManagers, 100*float64(addedManagers)/float64(totalManagers))
-
 			}
 		}()
 
@@ -125,6 +131,8 @@ func (mc *ManagerController) AddManagers() {
 
 			addedManagers += numJobs
 		}
+
+		tickerDone <- true
 
 		// all managers added, sleep and then add newcomers
 		log.Println("Current FPL managers added, going to sleep for an hour now")
