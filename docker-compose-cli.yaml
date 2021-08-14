@@ -13,4 +13,4 @@ services:
       - fpl-find-a-manager-data-dev:/var/lib/postgresql/data
 
 volumes:
-  fpl-find-a-manager-data-dev:
+  fpl-find-a-manager-data:
