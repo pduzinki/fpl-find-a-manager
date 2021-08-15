@@ -10,7 +10,7 @@ services:
     env_file:
       - config-dev.env
     volumes:
-      - fpl-find-a-manager-data-dev:/var/lib/postgresql/data
+      - fpl-find-a-manager-data:/var/lib/postgresql/data
 
 volumes:
   fpl-find-a-manager-data:
