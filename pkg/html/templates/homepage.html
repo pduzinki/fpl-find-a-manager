@@ -1,5 +1,16 @@
 {{define "content"}}
-    <p>
-        nothing here yet
-    </p>
+    {{template "searchForm"}}
+{{end}}
+
+
+{{define "searchForm"}}
+    <div>
+        <form action="/" method="GET">
+            <div>
+                <label for="managername">Who are you looking for?</label>
+                <input type="text" name="managername" id="managername" placeholder="type here">
+            </div>
+            <button type="submit">Search!</button>
+        </form>
+    </div>
 {{end}}

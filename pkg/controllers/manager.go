@@ -158,7 +158,7 @@ func (mc *ManagerController) getManagersFromFPL(id int, jobs chan int, results c
 			continue
 		} else if err != nil {
 			jobs <- j
-			log.Printf("FPL API call returned '%v', worker %v going to sleep. Jon: %v", err, id, j)
+			log.Printf("FPL API call returned '%v', worker %v going to sleep. Job: %v", err, id, j)
 			time.Sleep(sleeps[len(sleeps)-1])
 			continue
 		}
