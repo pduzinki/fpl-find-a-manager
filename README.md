@@ -1,5 +1,5 @@
 ## About
-*fpl-find-a-manager* is a simple tool that collects manager's data from official Fantasy Premier League API, and allows you to find teams of your favorite managers.
+*fpl-find-a-manager* is a little tool that collects manager's data from official Fantasy Premier League API, and allows you to find teams of your favorite managers.
 
 ## Prerequisites
 * Go (1.16 or higher) https://golang.org/doc/install
