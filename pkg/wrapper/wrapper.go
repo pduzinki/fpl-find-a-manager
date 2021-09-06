@@ -12,6 +12,7 @@ import (
 var ErrHTTPStatusNotOK error = errors.New("Response status != http 200")
 var ErrHTTPTooManyRequests error = errors.New("Response status - http 429 - too many requests")
 var ErrHTTPStatusNotFound error = errors.New("Response status - http 404 - not found")
+var ErrHTTPStatusServiceUnavailable error = errors.New("Response status - http 503 - service unavailable")
 var errReadFailure error = errors.New("Failed to read the response")
 var errUnmarshalFailure error = errors.New("Failed to unmarshal data")
 
@@ -77,6 +78,8 @@ func (w *wrapper) fetchData(url string, data interface{}) error {
 
 	if resp.StatusCode == http.StatusTooManyRequests {
 		return ErrHTTPTooManyRequests
+	} else if resp.StatusCode == http.StatusServiceUnavailable {
+		return ErrHTTPStatusServiceUnavailable
 	} else if resp.StatusCode == http.StatusNotFound {
 		return ErrHTTPStatusNotFound
 	} else if resp.StatusCode != http.StatusOK {
